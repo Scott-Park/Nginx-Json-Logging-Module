@@ -1,4 +1,4 @@
- /* 
+ /*
  * Copyright (c) 2012 Ju-ho Park <vispourtoimeme@gmail.com>
  */
 #include <ngx_config.h>
@@ -166,13 +166,16 @@ ngx_http_jsonlog_handler(ngx_http_request_t *r)
     for(h = 0; h < jllcf->secure->nelts; h++){
       q = (u_char *)ngx_strstr(ngx_hval->data, jlparam[h].name.data);
       if(q){
-        q += jlparam[h].name.len + 1;
-        while(q < ngx_hval->data + ngx_hval->len){
-          if(*q == (u_char)'&'){
-            break;
+        q += jlparam[h].name.len;
+        if(*q == (u_char)'='){
+          q += 1;
+          while(q < ngx_hval->data + ngx_hval->len){
+            if(*q == (u_char)'&'){
+              break;
+            }
+            *q = (u_char)'*';
+            q++;
           }
-          *q = (u_char)'*';
-          q++;
         }
       }
     }
@@ -205,7 +208,7 @@ ngx_http_jsonlog_write_log(u_char *buf, size_t len)
 {
   ngx_tm_t                 tm;
   ngx_fd_t                 log_fd;
-  
+
   /*
   * I recommend you use logrotate.
   * This code was used for testing.
